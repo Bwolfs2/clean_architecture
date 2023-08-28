@@ -2,7 +2,7 @@
 sidebar_position: 1
 ---
 
-# Models
+# Test Widget
 
 Add **Markdown or React** files to `src/pages` to create a **standalone page**:
 

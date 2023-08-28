@@ -49,6 +49,22 @@ const sidebars = {
       'presentation/pages',      
       'presentation/widgets',
     ],
+  },
+  {
+    type: 'category',
+    label: 'Tests',
+    items: [
+      'test/unit_test',    
+      'test/test_widget',      
+      'test/integration_test',
+    ],
+  },
+  {
+    type: 'category',
+    label: 'Utils',
+    items: [
+      'utils/services',       
+    ],
   }
 ]
   

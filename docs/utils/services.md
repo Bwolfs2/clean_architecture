@@ -2,7 +2,7 @@
 sidebar_position: 2
 ---
 
-# Integration Test
+# Services
 
 Documents are **groups of pages** connected through:
 
