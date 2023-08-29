@@ -4,85 +4,55 @@ sidebar_position: 4
 
 # Failures
 
-Let's translate `docs/intro.md` to French.
+Todo: definitios of Failure
 
-## Configure i18n
+```dart
+class NoDataFound extends Failure {}
 
-Modify `docusaurus.config.js` to add support for the `fr` locale:
+abstract class NoInternetConnection extends Failure {
+  NoInternetConnection() : super(errorMessage: 'No Internet Connection');
+}
 
-```js title="docusaurus.config.js"
-module.exports = {
-  i18n: {
-    defaultLocale: 'en',
-    locales: ['en', 'fr'],
-  },
-};
+class MovieNowPlayingNoInternetConnection extends NoInternetConnection {}
+
 ```
 
-## Translate a doc
+Normaly i have a core failure definition:
 
-Copy the `docs/intro.md` file to the `i18n/fr` folder:
+```dart
+abstract class Failure implements Exception {
+  final String errorMessage;
 
-```bash
-mkdir -p i18n/fr/docusaurus-plugin-content-docs/current/
+  Failure({
+    StackTrace? stackTrace,
+    String? label,
+    dynamic exception,
+    this.errorMessage = '',
+  }) {
+    if (stackTrace != null) {
+      debugPrintStack(label: label, stackTrace: stackTrace);
+    }
 
-cp docs/intro.md i18n/fr/docusaurus-plugin-content-docs/current/intro.md
-```
+    //In this point you can call your external service like Firebase Crashlytics or Sentry
+    ErrorReport.externalFailureError(exception, stackTrace, label);
+  }
+}
 
-Translate `i18n/fr/docusaurus-plugin-content-docs/current/intro.md` in French.
+class UnknownError extends Failure {
+  final dynamic exception;
+  final StackTrace? stackTrace;
+  final String? label;
 
-## Start your localized site
+  UnknownError({
+    this.label,
+    this.exception,
+    this.stackTrace,
+    super.errorMessage = 'Unknown Error',
+  }) : super(
+          stackTrace: stackTrace,
+          label: label,
+          exception: exception,
+        );
+}
 
-Start your site on the French locale:
-
-```bash
-npm run start -- --locale fr
-```
-
-Your localized site is accessible at [http://localhost:3000/fr/](http://localhost:3000/fr/) and the `Getting Started` page is translated.
-
-:::caution
-
-In development, you can only use one locale at a same time.
-
-:::
-
-## Add a Locale Dropdown
-
-To navigate seamlessly across languages, add a locale dropdown.
-
-Modify the `docusaurus.config.js` file:
-
-```js title="docusaurus.config.js"
-module.exports = {
-  themeConfig: {
-    navbar: {
-      items: [
-        // highlight-start
-        {
-          type: 'localeDropdown',
-        },
-        // highlight-end
-      ],
-    },
-  },
-};
-```
-
-The locale dropdown now appears in your navbar:
-
-![Locale Dropdown](./img/localeDropdown.png)
-
-## Build your localized site
-
-Build your site for a specific locale:
-
-```bash
-npm run build -- --locale fr
-```
-
-Or build your site to include all the locales at once:
-
-```bash
-npm run build
 ```

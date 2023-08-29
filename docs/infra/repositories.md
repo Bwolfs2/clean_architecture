@@ -4,31 +4,131 @@ sidebar_position: 3
 
 # Repositories
 
-Docusaurus creates a **page for each blog post**, but also a **blog index page**, a **tag system**, an **RSS** feed...
+TODO: Definition of Repository
 
-## Create your first Post
 
-Create a file at `blog/2021-02-28-greetings.md`:
+```dart
+class MoviesRepositoryImpl implements MoviesRepository {
+  final MovieDataSource _dataSource;
 
-```md title="blog/2021-02-28-greetings.md"
----
-slug: greetings
-title: Greetings!
-authors:
-  - name: Joel Marcey
-    title: Co-creator of Docusaurus 1
-    url: https://github.com/JoelMarcey
-    image_url: https://github.com/JoelMarcey.png
-  - name: Sébastien Lorber
-    title: Docusaurus maintainer
-    url: https://sebastienlorber.com
-    image_url: https://github.com/slorber.png
-tags: [greetings]
----
+  MoviesRepositoryImpl(this._dataSource);
 
-Congratulations, you have made your first post!
+  @override
+  Future<Either<Failure, List<Movie>>> getMovieNowPlaying() async {
+    try {
+      final result = await _dataSource.getMovieNowPlaying();
 
-Feel free to play around and edit this post as much you like.
+      if (result.isEmpty) {
+        return Left(NoDataFound());
+      }
+
+      return Right(result);
+    } on Failure catch (e) {
+      return Left(e);
+    }
+  }
+
+  @override
+  Future<Either<Failure, List<Movie>>> getMoviePopular() async {
+    try {
+      final result = await _dataSource.getMoviePopular();
+
+      if (result.isEmpty) {
+        return Left(NoDataFound());
+      }
+
+      return Right(result);
+    } on Failure catch (e) {
+      return Left(e);
+      // ignore: avoid_catches_without_on_clauses
+    } catch (exception, stacktrace) {
+      return Left(UnknownError(exception: exception, stackTrace: stacktrace, label: 'moviesRepositoryImpl-getMoviePopular'));
+    }
+  }
+
+  @override
+  Future<Either<Failure, List<Movie>>> getMovieUpComming() async {
+    try {
+      final result = await _dataSource.getMovieUpComming();
+
+      if (result.isEmpty) {
+        return Left(NoDataFound());
+      }
+
+      return Right(result);
+    } on Failure catch (e) {
+      return Left(e);
+    } on Exception catch (exception, stacktrace) {
+      return Left(UnknownError(exception: exception, stackTrace: stacktrace, label: 'moviesRepositoryImpl-getMovieUpComming'));
+    }
+  }
+
+  @override
+  Future<Either<Failure, List<Trailer>>> getMovieTrailerById(int id) async {
+    try {
+      final result = await _dataSource.getMovieTrailerById(id);
+
+      if (result.isEmpty) {
+        return Left(NoDataFound());
+      }
+
+      return Right(result);
+    } on Failure catch (e) {
+      return Left(e);
+    } on Exception catch (exception, stacktrace) {
+      return Left(UnknownError(exception: exception, stackTrace: stacktrace, label: 'moviesRepositoryImpl-getMovieTrailerById'));
+    }
+  }
+
+  @override
+  Future<Either<Failure, List<Trailer>>> getTvShowTrailerById(int id) async {
+    try {
+      final result = await _dataSource.getTvShowTrailerById(id);
+
+      if (result.isEmpty) {
+        return Left(NoDataFound());
+      }
+
+      return Right(result);
+    } on Failure catch (e) {
+      return Left(e);
+    } on Exception catch (exception, stacktrace) {
+      return Left(UnknownError(exception: exception, stackTrace: stacktrace, label: 'moviesRepositoryImpl-getTvShowTrailer'));
+    }
+  }
+
+  @override
+  Future<Either<Failure, List<Crew>>> getMovieCrewById(int id) async {
+    try {
+      final result = await _dataSource.getMovieCrewById(id);
+
+      if (result.isEmpty) {
+        return Left(NoDataFound());
+      }
+
+      return Right(result);
+    } on Failure catch (e) {
+      return Left(e);
+    } on Exception catch (exception, stacktrace) {
+      return Left(UnknownError(exception: exception, stackTrace: stacktrace, label: 'moviesRepositoryImpl-getTvShowTrailer'));
+    }
+  }
+
+  @override
+  Future<Either<Failure, List<Crew>>> getTvShowCrewById(int id) async {
+    try {
+      final result = await _dataSource.getTvShowCrewById(id);
+
+      if (result.isEmpty) {
+        return Left(NoDataFound());
+      }
+
+      return Right(result);
+    } on Failure catch (e) {
+      return Left(e);
+    } on Exception catch (exception, stacktrace) {
+      return Left(UnknownError(exception: exception, stackTrace: stacktrace, label: 'moviesRepositoryImpl-getTvShowTrailer'));
+    }
+  }
+}
 ```
-
-A new blog post is now available at [http://localhost:3000/blog/greetings](http://localhost:3000/blog/greetings).

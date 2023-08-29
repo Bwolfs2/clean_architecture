@@ -4,31 +4,87 @@ sidebar_position: 3
 
 # Create a Blog Post
 
-Docusaurus creates a **page for each blog post**, but also a **blog index page**, a **tag system**, an **RSS** feed...
+TODO: Definition of Page
 
-## Create your first Post
+```dart
+class MoviePage extends StatefulWidget {
+  const MoviePage({super.key});
 
-Create a file at `blog/2021-02-28-greetings.md`:
+  @override
+  State<MoviePage> createState() => _MoviePageState();
+}
 
-```md title="blog/2021-02-28-greetings.md"
----
-slug: greetings
-title: Greetings!
-authors:
-  - name: Joel Marcey
-    title: Co-creator of Docusaurus 1
-    url: https://github.com/JoelMarcey
-    image_url: https://github.com/JoelMarcey.png
-  - name: Sébastien Lorber
-    title: Docusaurus maintainer
-    url: https://sebastienlorber.com
-    image_url: https://github.com/slorber.png
-tags: [greetings]
----
+class _MoviePageState extends State<MoviePage> {
+  Future<void> _refresh() async {
+    await Future.wait([
+      Modular.get<MovieBannerStore>().load(),
+      Modular.get<UpComingWidgetStore>().load(),
+      Modular.get<PopularStore>().load(),
+    ]).then(
+      (value) => debugPrint('Reloaded'),
+    );
+  }
 
-Congratulations, you have made your first post!
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        automaticallyImplyLeading: false,
+        title: const Text('Movies'),
+        centerTitle: true,
+        actions: <Widget>[
+          PopupMenuButton<Menu>(
+            icon: const Icon(Icons.more_vert),
+            onSelected: (menu) {
+              if (menu.isFeedBack) {
+                BetterFeedback.of(context).show((feedback) {
+                  FirebaseStorage.instance.ref().child('feedbacks+${const Uuid().v4()}').putData(
+                        feedback.screenshot,
+                        SettableMetadata(customMetadata: {'message': feedback.text}),
+                      );
+                });
+              } else {
+                Modular.to.pushNamed(menu.route);
+              }
+            },
+            itemBuilder: (context) {
+              return menus.map((menu) {
+                return PopupMenuItem<Menu>(
+                  value: menu,
+                  child: Text(menu.title),
+                );
+              }).toList();
+            },
+          ),
+        ],
+      ),
+      body: LiquidPullToRefresh(
+        onRefresh: _refresh,
+        showChildOpacityTransition: false,
+        springAnimationDurationInMilliseconds: 500,
+        child: ListView(
+          physics: const BouncingScrollPhysics(),
+          padding: const EdgeInsets.all(
+            10,
+          ),
+          children: const <Widget>[
+            MovieBanner(),
+            SizedBox(
+              height: 12,
+            ),
+            UpComingWidget(),
+            SizedBox(
+              height: 12,
+            ),
+            PopularWidget(),
+            SizedBox(
+              height: 12,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
 
-Feel free to play around and edit this post as much you like.
 ```
-
-A new blog post is now available at [http://localhost:3000/blog/greetings](http://localhost:3000/blog/greetings).

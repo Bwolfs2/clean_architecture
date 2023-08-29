@@ -4,20 +4,109 @@ sidebar_position: 6
 
 # DataSources
 
-You have just learned the **basics of Docusaurus** and made some changes to the **initial template**.
+TODO: Datasource Definition
 
-Docusaurus has **much more to offer**!
+```dart
 
-Have **5 more minutes**? Take a look at **[versioning](../tutorial-extras/manage-docs-versions.md)** and **[i18n](../tutorial-extras/translate-your-site.md)**.
+class MovieDataSourceImpl implements MovieDataSource {
+  final IHttpClient _httpClient;
 
-Anything **unclear** or **buggy** in this tutorial? [Please report it!](https://github.com/facebook/docusaurus/discussions/4610)
+  MovieDataSourceImpl(this._httpClient);
 
-## What's next?
+  @override
+  Future<List<Movie>> getMovieNowPlaying() async {
+    try {
+      final response = await _httpClient.get(
+        'movie/now_playing',
+      );
 
-- Read the [official documentation](https://docusaurus.io/)
-- Modify your site configuration with [`docusaurus.config.js`](https://docusaurus.io/docs/api/docusaurus-config)
-- Add navbar and footer items with [`themeConfig`](https://docusaurus.io/docs/api/themes/configuration)
-- Add a custom [Design and Layout](https://docusaurus.io/docs/styling-layout)
-- Add a [search bar](https://docusaurus.io/docs/search)
-- Find inspirations in the [Docusaurus showcase](https://docusaurus.io/showcase)
-- Get involved in the [Docusaurus Community](https://docusaurus.io/community/support)
+      return MovieMapper.fromMapList(response.data);
+    } on Failure catch (e, stackTrace) {
+      if (e is TimeOutError) {
+        throw MovieNowPlayingNoInternetConnection();
+      } else {
+        throw MovieNowPlayingError(stackTrace, 'MovieDataSourceImpl-getMovieNowPlaying', e, e.toString());
+      }
+    }
+  }
+
+  @override
+  Future<List<Movie>> getMoviePopular() async {
+    try {
+      final response = await _httpClient.get('movie/popular');
+
+      return MovieMapper.fromMapList(response.data);
+    } on TimeOutError {
+      throw MovieUpComingNoInternetConnection();
+    } catch (e, stackTrace) {
+      throw MoviePopularError(stackTrace, 'MovieDataSourceImpl-getMoviePopular', e, e.toString());
+    }
+  }
+
+  @override
+  Future<List<Movie>> getMovieUpComming() async {
+    try {
+      final response = await _httpClient.get('movie/upcoming');
+
+      return MovieMapper.fromMapList(response.data);
+    } on TimeOutError {
+      throw MovieUpComingNoInternetConnection();
+    } catch (e, stackTrace) {
+      throw MovieUpComingError(stackTrace, 'MovieDataSourceImpl-getMovieUpComming', e, e.toString());
+    }
+  }
+
+  @override
+  Future<List<Trailer>> getMovieTrailerById(int movieId) async {
+    try {
+      final response = await _httpClient.get('movie/$movieId/videos');
+
+      return TrailerMapper.fromMapList(response.data);
+    } on TimeOutError {
+      throw MovieUpComingNoInternetConnection();
+    } catch (e, stackTrace) {
+      throw TrailerError(stackTrace, 'MovieDataSourceImpl-getMovieTrailerById', e, e.toString());
+    }
+  }
+
+  @override
+  Future<List<Trailer>> getTvShowTrailerById(int tvId) async {
+    try {
+      final response = await _httpClient.get('tv/$tvId/videos');
+
+      return TrailerMapper.fromMapList(response.data);
+    } on TimeOutError {
+      throw MovieUpComingNoInternetConnection();
+    } catch (e, stackTrace) {
+      throw TrailerError(stackTrace, 'MovieDataSourceImpl-getTvShowTrailerById', e, e.toString());
+    }
+  }
+
+  @override
+  Future<List<Crew>> getMovieCrewById(int movieId) async {
+    try {
+      final response = await _httpClient.get('movie/$movieId/credits');
+
+      return CrewMapper.fromMapList(response.data);
+    } on TimeOutError {
+      throw MovieUpComingNoInternetConnection();
+    } catch (e, stackTrace) {
+      throw CrewError(stackTrace, 'MovieDataSourceImpl-getMovieCrewById', e, e.toString());
+    }
+  }
+
+  @override
+  Future<List<Crew>> getTvShowCrewById(int tvId) async {
+    try {
+      final response = await _httpClient.get('tv/$tvId/credits');
+
+      return CrewMapper.fromMapList(response.data);
+    } on TimeOutError {
+      throw MovieUpComingNoInternetConnection();
+    } catch (e, stackTrace) {
+      throw CrewError(stackTrace, 'MovieDataSourceImpl-getTvShowCrewById', e, e.toString());
+    }
+  }
+}
+
+```

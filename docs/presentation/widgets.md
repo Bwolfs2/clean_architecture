@@ -2,30 +2,84 @@
 sidebar_position: 5
 ---
 
-# Deploy your site
+# Widgets
 
-Docusaurus is a **static-site-generator** (also called **[Jamstack](https://jamstack.org/)**).
+TODO: Definition of Widgets
 
-It builds your site as simple **static HTML, JavaScript and CSS files**.
+```dart
+class CrewWidget extends StatefulWidget {
+  final int movieId;
+  final bool isFromMovie;
+  const CrewWidget({Key? key, required this.movieId, required this.isFromMovie}) : super(key: key);
 
-## Build your site
+  @override
+  State<CrewWidget> createState() => _CrewWidgetState();
+}
 
-Build your site **for production**:
+class _CrewWidgetState extends State<CrewWidget> {
+  final store = Modular.get<CrewStore>();
 
-```bash
-npm run build
+  Future<void> reload() async {
+    if (widget.isFromMovie) {
+      await store.loadMovieTrailer(widget.movieId);
+    } else {
+      await store.loadTvShowTrailer(widget.movieId);
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    reload();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final width = MediaQuery.sizeOf(context).width;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Crew',
+          style: TextStyle(
+            fontWeight: FontWeight.w600,
+            fontSize: 16,
+          ),
+        ),
+        const SizedBox(height: 8),
+        SizedBox(
+          width: width,
+          height: width / 3,
+          child: ScopedBuilder<CrewStore, Failure, List<Crew>>.transition(
+            store: store,
+            onError: (context, error) => error is CrewNoInternetConnection
+                ? NoInternetWidget(
+                    message: AppConstant.noInternetConnection,
+                    onPressed: reload,
+                  )
+                : CustomErrorWidget(message: error?.errorMessage),
+            onLoading: (context) => const Center(
+              child: CircularProgressIndicator.adaptive(),
+            ),
+            onState: (context, state) => ListView.builder(
+              shrinkWrap: true,
+              physics: const BouncingScrollPhysics(),
+              scrollDirection: Axis.horizontal,
+              itemCount: state.length,
+              itemBuilder: (context, index) {
+                final crew = state[index];
+
+                return CardCrew(
+                  image: crew.profile ?? '',
+                  name: crew.characterName,
+                );
+              },
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
 ```
-
-The static files are generated in the `build` folder.
-
-## Deploy your site
-
-Test your production build locally:
-
-```bash
-npm run serve
-```
-
-The `build` folder is now served at [http://localhost:3000/](http://localhost:3000/).
-
-You can now deploy the `build` folder **almost anywhere** easily, **for free** or very small cost (read the **[Deployment Guide](https://docusaurus.io/docs/deployment)**).

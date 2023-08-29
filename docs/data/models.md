@@ -4,40 +4,98 @@ sidebar_position: 1
 
 # Models
 
-Add **Markdown or React** files to `src/pages` to create a **standalone page**:
+TODO: Model Definition
 
-- `src/pages/index.js` → `localhost:3000/`
-- `src/pages/foo.md` → `localhost:3000/foo`
-- `src/pages/foo/bar.js` → `localhost:3000/foo/bar`
 
-## Create your first React Page
+```dart
+class MovieModel extends Movie {
+  MovieModel(
+    int movieId,
+    String title,
+    String overview,
+    String releaseDate,
+    List<int> genreIds,
+    double voteAverage,
+    double popularity,
+    String posterPath,
+    String backdropPath,
+    String? tvName,
+    String? tvRelease
+  ) : super(
+          movieId,
+          title,
+          overview,
+          releaseDate,
+          genreIds,
+          voteAverage,
+          popularity,
+          posterPath,
+          backdropPath,
+          tvName,
+          tvRelease,
+        );
 
-Create a file at `src/pages/my-react-page.js`:
+  // Convert a MovieModel instance into a Map.
+  Map<String, dynamic> toJson() => {
+        'movieId': movieId,
+        'title': title,
+        'overview': overview,
+        'releaseDate': releaseDate,
+        'genreIds': genreIds,
+        'voteAverage': voteAverage,
+        'popularity': popularity,
+        'posterPath': posterPath,
+        'backdropPath': backdropPath,
+        'tvName': tvName,
+        'tvRelease': tvRelease,
+      };
 
-```jsx title="src/pages/my-react-page.js"
-import React from 'react';
-import Layout from '@theme/Layout';
+  // Create a MovieModel instance from a Map.
+  factory MovieModel.fromJson(Map<String, dynamic> json) {
+    return MovieModel(
+      json['movieId'],
+      json['title'],
+      json['overview'],
+      json['releaseDate'],
+      List<int>.from(json['genreIds']),
+      json['voteAverage'],
+      json['popularity'],
+      json['posterPath'],
+      json['backdropPath'],
+      json['tvName'],
+      json['tvRelease'],
+    );
+  }
+}
 
-export default function MyReactPage() {
-  return (
-    <Layout>
-      <h1>My React page</h1>
-      <p>This is a React page</p>
-    </Layout>
-  );
+```
+
+
+
+Some people like to use Freezed as a way to simplify things, however, since it doesn't extend from the entity, in my view, it's breaking some SOLID principles, and you will need to do some workarounds to make it work well. In my opinion, the Data Mapper pattern addresses this in a more elegant way.
+
+```dart
+import 'package:freezed_annotation/freezed_annotation.dart';
+
+part 'movie.freezed.dart';
+part 'movie.g.dart';
+
+@freezed
+class Movie with _$Movie {
+  const factory Movie({
+    required int movieId,
+    required String title,
+    required String overview,
+    required String releaseDate,
+    required List<int> genreIds,
+    required double voteAverage,
+    required double popularity,
+    required String posterPath,
+    required String backdropPath,
+    String? tvName,
+    String? tvRelease,
+  }) = _Movie;
+
+  factory Movie.fromJson(Map<String, dynamic> json) => _$MovieFromJson(json);
 }
 ```
-
-A new page is now available at [http://localhost:3000/my-react-page](http://localhost:3000/my-react-page).
-
-## Create your first Markdown Page
-
-Create a file at `src/pages/my-markdown-page.md`:
-
-```mdx title="src/pages/my-markdown-page.md"
-# My Markdown page
-
-This is a Markdown page
-```
-
-A new page is now available at [http://localhost:3000/my-markdown-page](http://localhost:3000/my-markdown-page).
